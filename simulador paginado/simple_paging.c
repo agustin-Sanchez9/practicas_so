@@ -82,29 +82,83 @@ int main(int argc, char **argv){
         option = menu("SIMPLE PAGING SIMULATOR", opc);
         switch(option){
 
+            // memory size
             case 1: 
-                printf("Input the memory size (KB): ");
+                printf("Enter the memory size (KB): ");
                 mem.size_memory = int_input();
                 break;
 
+            // os size
             case 2:
-                printf("Input the os size (KB):");
+                printf("Enter the os size (KB): ");
                 mem.size_os = int_input();
                 break;
             
+            // frame size and then shows data
             case 3:
-                printf("Input the frame size (KB):");
+                printf("Enter the frame size (KB): ");
                 mem.size_frame = int_input();
                 create_frames_chart(&mem);
                 show_data(&mem, 0);
                 break;
 
-            
+            // run process
+            case 4:
+                printf("Enter PID: ");
+                int proc_pid = int_input();
+                printf("Enter the process size (KB): ");
+                int proc_size = int_input();
+                int proc_frames = proc_size / mem.size_frame;
+                if(proc_size % mem.size_frame) proc_frames++;
 
+                // if free frames are not enough
+                if(mem.nframes_free < proc_frames){
+                    printf("ERROR: NOT ENOUGH FREE FRAMES FOR THE PROCESS.");
+                }
+                else{
+                    // if free frames are enough
+                    mem.nproc++;
+                    if(mem.pcb){
+                        mem.pcb = (struct data_process *) realloc(mem.pcb, sizeof(struct data_process) * mem.nproc);
+                    }
+                    else {
+                        mem.pcb = (struct data_process *) malloc(sizeof(struct data_process) * mem.nproc);
+                    }
+                }
+                struct data_process *np = mem.pcb + (mem.nproc-1);
+                np->pid = proc_pid;
+                np->size_proc = proc_size;
+                np->nframes_proc = proc_frames;
+
+                // creation of frames chart
+                np->frames_chart = (int *) malloc(sizeof(int)*np->nframes_proc);
+
+                // fill frames
+                struct data_frame *pf = mem.fr + mem.nframe_os;
+                int *pt = np->frames_chart;
+                int i = mem.nframe_os;
+                int pq = 0;
+                for(;i < mem.nframe && pq < np->nframes_proc; i++, pf++){
+                    // find free frame
+                    if(pf->state == 0){
+                        *pt = i;
+                        fill_frame(&mem, i, 0);
+                        pq++;
+                        pt++;
+                    }
+                }
+                mem.nframes_free-=np->nframes_proc;
+                show_data(&mem, 0);
+                
+                break;
+
+
+
+
+            // exit
             case 99:
                 if(!confirm("WANT TO EXIT? (Y/N): ")) option = 0;
                 break;  
-            
         }
 
     } while(option != 99);
@@ -198,8 +252,10 @@ void create_frames_chart(struct data_memory *m){
 
 void show_data(struct data_memory *m , int option){
 
-    printf("Memory Size: %d\nOs Size: %d\nFrame Size: %d\nMemory Frames: %d\nOs Frames: %d\nFree Frames: %d\n",
+    printf("--------------------------------------------------------\n");
+    printf("MEMORY SIZE: %d\nOS SIZE: %d\nFRAME SIZE: %d\nMEMORY FRAMES: %d\nOS FRAMES: %d\nFREE FRAMES: %d\n",
 		m->size_memory,m->size_os,m->size_frame,m->nframe,m->nframe_os,m->nframes_free);
+    printf("--------------------------------------------------------\n");
 
     if(m->fr){
         struct data_frame *f = m->fr;
@@ -218,4 +274,5 @@ void show_data(struct data_memory *m , int option){
             }
         }
     }
+    printf("--------------------------------------------------------\n");
 }
