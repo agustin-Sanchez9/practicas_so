@@ -125,8 +125,9 @@ int main(int argc, char **argv){
 
 
 int menu(const char *title , const char *options[]){
-    int i, op_counter, op_chosen;
+    int i, op_counter, op_chosen = 0;
     do{
+        op_counter = 1; i = 0;
         printf("\t\t%s\n",title);
         while(options[i]){
             printf("\t%2.0d. %s\n",op_counter,options[i]);
@@ -159,7 +160,7 @@ int int_input(){
 int confirm(char *msg){
     char answer[4];
     do{
-        printf("%s (y/n)",msg);
+        printf("%s",msg);
         input(answer,4);
     }while(!(strcasecmp(answer, "y") == 0 || strcasecmp(answer, "n") == 0));
     if (strcasecmp(answer, "y") == 0) return 1;
@@ -190,7 +191,7 @@ void create_frames_chart(struct data_memory *m){
         }
     }
     else{
-        printf("");
+        printf("Fail to create frame charts\n");
     }
 }
 
