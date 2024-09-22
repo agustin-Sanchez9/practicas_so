@@ -48,14 +48,6 @@ struct data_process{
 
 /////////////////////// FUNCTIONS ///////////////////////
 
-void create_frames_chart(struct data_memory *); 
-// requires size_memory, size_os and size_frame
-
-void show_data(struct data_memory * , int);
-
-void fill_frame(struct data_memory * , int nframe , unsigned char os);
-// used to occupy the frames of the memory
-
 int menu(const char *title, const char *options[]);
 // creates the main menu and shows the options to continue
 
@@ -68,6 +60,13 @@ int int_input();
 int confirm(char *msg);
 // ask for confirmation to the user
 
+void create_frames_chart(struct data_memory *); 
+// requires size_memory, size_os and size_frame
+
+void show_data(struct data_memory * , int);
+
+void fill_frame(struct data_memory * , int nframe , unsigned char os);
+// used to occupy the frames of the memory
 
 
 
@@ -97,6 +96,7 @@ int menu(const char *title , const char *options[]){
 
 }
 
+
 void input(char *buffer, int size){
     fgets(buffer,size,stdin);
     buffer[strlen(buffer)-1]='\0';
@@ -109,6 +109,7 @@ int int_input(){
     return atoi(code);
 }
 
+
 int confirm(char *msg){
     char answer[4];
     do{
@@ -117,4 +118,32 @@ int confirm(char *msg){
     }while(!(strcasecmp(answer, "y") == 0 || strcasecmp(answer, "n") == 0));
     if (strcasecmp(answer, "y") == 0) return 1;
     else return 0;
+}
+
+
+void fill_frame(struct data_memory *m , int nframe , unsigned char os){
+    (m->fr+nframe)->state = 1; // ocuppied frame
+    (m->fr+nframe)->owner = os; // frame 
+};
+
+
+
+void create_frames_chart(struct data_memory *m){
+    if(m->size_memory && m->size_frame && m->size_os){
+        m->nframe = m->size_memory / m->size_frame;
+        m->nframe_os = m->size_os / m->size_frame;
+        if(m->size_os % m->size_frame) m->nframe_os++;
+        m->nframes_free = m->nframe - m->nframe_os;
+        // free memory
+        if(m->fr) free(m->fr);
+        m->fr = (struct data_frame *) malloc(sizeof(struct data_frame) * m->nframe);
+        memset(m->fr,0,sizeof(struct data_frame) * m->nframe); // m->fr = 0;
+        // fill the frames for the os
+        for(int i = 0; i < m->nframe_os; i++){
+            fill_frame(m,i,1);
+        }
+    }
+    else{
+        printf("");
+    }
 }
