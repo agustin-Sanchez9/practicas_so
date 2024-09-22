@@ -72,6 +72,52 @@ void fill_frame(struct data_memory * , int nframe , unsigned char os);
 
 int main(int argc, char **argv){
 
+    const char *opc[8] = {"MEMORY SIZE","OS SIZE","FRAME SIZE","RUN PROCESS","KILL PROCESS","SHOW DATA","MAPPING",NULL};
+
+    int option = 0;
+    struct data_memory mem;
+    memset(&mem,0,sizeof(struct data_memory)); // set mem to 0
+
+    do{
+        option = menu("SIMPLE PAGING SIMULATOR", opc);
+        switch(option){
+
+            case 1: 
+                printf("Input the memory size (KB): ");
+                mem.size_memory = int_input();
+                break;
+
+            case 2:
+                printf("Input the os size (KB):");
+                mem.size_os = int_input();
+                break;
+            
+            case 3:
+                printf("Input the frame size (KB):");
+                mem.size_frame = int_input();
+                create_frames_chart(&mem);
+                show_data(&mem, 0);
+                break;
+
+            
+
+            case 99:
+                if(!confirm("WANT TO EXIT? (Y/N): ")) option = 0;
+                break;  
+            
+        }
+
+    } while(option != 99);
+
+    // free memory
+    if(mem.fr) free(mem.fr);
+    if(mem.pcb){
+        struct data_process *p = mem.pcb;
+        for(int j=0; j < mem.nproc; j++,p++){
+            if(p->frames_chart) free(p->frames_chart);
+        }
+        free(mem.pcb);
+    }
 
     return 0;
 }
