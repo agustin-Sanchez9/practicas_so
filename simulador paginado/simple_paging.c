@@ -147,3 +147,28 @@ void create_frames_chart(struct data_memory *m){
         printf("");
     }
 }
+
+
+void show_data(struct data_memory *m , int option){
+
+    printf("Memory Size: %d\nOs Size: %d\nFrame Size: %d\nMemory Frames: %d\nOs Frames: %d\nFree Frames: %d\n",
+		m->size_memory,m->size_os,m->size_frame,m->nframe,m->nframe_os,m->nframes_free);
+
+    if(m->fr){
+        struct data_frame *f = m->fr;
+        for(int i=0; i < m->nframe; i++,f++){
+            printf("FRAME: %d  STATE: %d  OWNER: %d\n",i,(int) f->state,(int) f->owner);
+        }
+    }
+    if(m->pcb){
+        struct data_process *p = m->pcb;
+        for(int i=0; i < m->nproc; i++, p++){
+            printf("PROCESS: %d  SIZE: %dKB  NFRAMES: %d\n",p->pid,p->size_proc,p->nframes_proc);
+            if(p->frames_chart){
+                for(int j=0; j < p->nframes_proc; j++){
+                    printf("\t#PAGE: %d  FRAME: %d\n",j,*(p->frames_chart+j));
+                }
+            }
+        }
+    }
+}
