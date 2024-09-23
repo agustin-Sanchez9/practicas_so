@@ -68,6 +68,8 @@ void show_data(struct data_memory * , int);
 void fill_frame(struct data_memory * , int nframe , unsigned char os);
 // used to occupy the frames of the memory
 
+void free_frame(struct data_memory *m , int nframe , unsigned char os);
+// used to free frames of the memory
 
 
 int main(int argc, char **argv){
@@ -157,21 +159,29 @@ int main(int argc, char **argv){
                 
                 printf("Enter the PID: ");
                 int kill_proc = int_input();
+                int h;
+                for(h=0 ; h < mem.nproc ; h++){
 
-                printf("//////////////////debug for");
-                for(int i=0 ; i < mem.nproc ; i++){
-                    if(kill_proc == mem.pcb[i].pid){
-                        struct data_process *kp = mem.pcb + i;
+                    if(kill_proc == mem.pcb[h].pid){
+
+                        struct data_process *kp = mem.pcb + h;
+                        int *kf = kp->frames_chart;
                         mem.nframes_free+=kp->nframes_proc;
-                        //struct data_frame *pf = mem.fr + i;
-                        //free_frame(&mem,);
-                        free(kp);
-                        printf("////////////////debug free");
+
+                        for(int j=0; j < kp->nframes_proc; j++){
+                            int k = *kf + j;
+                            free_frame(&mem,k,0);                           
+                        }
+
+                        //mem.pcb[h] = (struct data_process *) realloc(&mem.pcb[h], 0);
+
                         break;
                     }
                 }
-                printf("PROCESS %d KILLED", kill_proc);
-
+                
+                printf("PROCESS %d KILLED\n", kill_proc);
+                show_data(&mem, 0);
+                break;
 
 
             // exit
@@ -207,7 +217,7 @@ int menu(const char *title , const char *options[]){
             op_counter++;
             i++;
         }
-        printf("\t99. Salir\n");
+        printf("\t99. EXIT\n");
         printf("Select an option: ");
         op_chosen = int_input();
         if(op_chosen == 99) return 99;
@@ -288,12 +298,14 @@ void show_data(struct data_memory *m , int option){
     if(m->pcb){
         struct data_process *p = m->pcb;
         for(int i=0; i < m->nproc; i++, p++){
+            printf("--------------------------------------------------------\n");
             printf("PROCESS: %d  SIZE: %dKB  NFRAMES: %d\n",p->pid,p->size_proc,p->nframes_proc);
             if(p->frames_chart){
                 for(int j=0; j < p->nframes_proc; j++){
                     printf("\t#PAGE: %d  FRAME: %d\n",j,*(p->frames_chart+j));
                 }
             }
+            
         }
     }
     printf("--------------------------------------------------------\n");
