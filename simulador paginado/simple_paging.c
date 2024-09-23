@@ -121,7 +121,7 @@ int main(int argc, char **argv){
                     if(mem.pcb){
                         mem.pcb = (struct data_process *) realloc(mem.pcb, sizeof(struct data_process) * mem.nproc);
                     }
-                    else {
+                    else{
                         mem.pcb = (struct data_process *) malloc(sizeof(struct data_process) * mem.nproc);
                     }
                 }
@@ -152,6 +152,25 @@ int main(int argc, char **argv){
                 
                 break;
 
+            // kill process
+            case 5:
+                
+                printf("Enter the PID: ");
+                int kill_proc = int_input();
+
+                printf("//////////////////debug for");
+                for(int i=0 ; i < mem.nproc ; i++){
+                    if(kill_proc == mem.pcb[i].pid){
+                        struct data_process *kp = mem.pcb + i;
+                        mem.nframes_free+=kp->nframes_proc;
+                        //struct data_frame *pf = mem.fr + i;
+                        //free_frame(&mem,);
+                        free(kp);
+                        printf("////////////////debug free");
+                        break;
+                    }
+                }
+                printf("PROCESS %d KILLED", kill_proc);
 
 
 
@@ -227,7 +246,10 @@ void fill_frame(struct data_memory *m , int nframe , unsigned char os){
     (m->fr+nframe)->owner = os; // frame 
 };
 
-
+void free_frame(struct data_memory *m , int nframe , unsigned char os){
+    (m->fr+nframe)->state = 0; // ocuppied frame
+    (m->fr+nframe)->owner = os; // frame 
+};
 
 void create_frames_chart(struct data_memory *m){
     if(m->size_memory && m->size_frame && m->size_os){
