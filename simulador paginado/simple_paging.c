@@ -173,6 +173,15 @@ int main(int argc, char **argv){
                             free_frame(&mem,k,0);                           
                         }
 
+                        free(kp->frames_chart);
+                        free(kp);
+
+                        for (int j = h; j < mem.nproc - 1; j++) {
+                            mem.pcb[j] = mem.pcb[j + 1];
+                        }
+
+                        mem.nproc--;
+
                         //mem.pcb[h] = (struct data_process *) realloc(&mem.pcb[h], 0);
 
                         break;
